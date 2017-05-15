@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context.xsd 
+       http://www.springframework.org/schema/mvc 
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+       http://www.springframework.org/schema/data/jpa 
+       http://www.springframework.org/schema/data/jpa/spring-jpa.xsd 
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!-- 配置自动扫描的包,组件扫描 -->
+	<context:component-scan base-package="blog">
+		<!-- include是扫描，exclude是不扫描 -->
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Service" />
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Repository" />
+	</context:component-scan>
+
+
+	<!-- ，配置视图解析器 如何把 handler 方法返回值解析为实际的物理视图，jsp路径的前缀和后缀 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsps/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	<!-- 上传文件 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8" />
+		<!-- 最大内存大小 -->
+		<property name="maxInMemorySize" value="10240" />
+		<!-- 最大文件大小，-1为不限制大小 -->
+		<property name="maxUploadSize" value="-1" />
+	</bean>
+	<!-- 静态资源 -->
+	<!--<mvc:resources mapping="/images/**" location="/style/images/"/> -->
+	<!--<mvc:resources mapping="/js/**" location="/style/js/"/> -->
+	<!--<mvc:resources mapping="/css/**" location="/style/css/"/> -->
+	<!--<mvc:resources mapping="/img/**" location="/style/img/"/> -->
+
+	<mvc:resources mapping="/style/**" location="/style/" />
+	<mvc:default-servlet-handler />
+	<!-- 配置LoginedInterceptor -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/**" />
+			<mvc:exclude-mapping path="/admin/login" />
+			<bean class="blog.interceptor.LoginedInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<!-- 使用 mvc:annotation-driven代替上边注解映射器和注解适配器配置 mvc:annotation-driven默认加载很多的参数绑定方法， 
+		比如json转换解析器就默认加载了，如果使用mvc:annotation-driven不用配置上边的RequestMappingHandlerMapping和RequestMappingHandlerAdapter 
+		实际开发时使用mvc:annotation-driven -->
+
+	<mvc:annotation-driven></mvc:annotation-driven>
+</beans>
